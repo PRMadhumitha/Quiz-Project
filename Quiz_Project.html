@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz_Project</title>
+    <link rel="stylesheet" href="demotask.css">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&family=Varela+Round&display=swap');
+
+*,*::before,*::after{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+}
+
+body {
+    background:purple;
+}
+body.right{
+    background:green;
+}
+body.wrong{
+    background:red;
+}
+.start, .info-box, .quiz-box, .result-box{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    box-shadow:0px 4px 8px 0px rgba(0,0,0,0.2),
+                         0px 3px 20px 0px rgba(0,0,0,0.4);
+    font-family:cam;     
+    transition:all 0.3s ease;                
+}
+.start button{
+    font-size:25px;
+    font-weight:500;
+    padding:15px 30px;
+    color:#0e1012;
+    outline:none;
+    
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    background:#fff;
+    font-family:'Varela Round', sans-serif;
+}
+.start:hover{
+    box-shadow:none;
+}
+
+
+.info-box.activeInfo{
+    opacity:1;
+    z-index:5;
+    pointer-events:auto;
+    transform:translate(-50% , -50%) scale(1);
+}
+.info-box {
+    width:350px;
+    background:#fff;
+    border-radius:8px;
+    opacity:0;
+    pointer-events:none;
+    transform:translate(-50% , -50%) scale(0.9);
+    padding:0 5px;
+}
+.info-box .info-title{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:0 20px;
+    font-weight:600;
+    height:60px;
+    width:100%;
+    font-size:20px;
+    border-bottom:1px solid lightgrey;
+}
+.info-box .info-list{
+    padding:15px 20px;
+}
+.info-box .info-list .info{
+    margin:5px 0;
+}
+.info-box .info-list .info span{
+    font-weight:600;
+    color:#5682b0;
+}
+.info-box .buttons{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:0 15px;
+    height:60px;
+    border-top:1px solid lightgrey;
+}
+.info-box .buttons button{
+    margin:0 5px;
+    border:1px solid transparent ;
+    font-size:16px;
+    font-weight:500;
+    height:40px;
+    width:100px;
+    color:#fff;
+    border-radius:5px;
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    transition:all 0.25s ease;
+}
+.info-box .buttons button.quit{
+    background:#fff;
+    border:1px solid #007bff;
+    color:#007bff;
+}
+.info-box .buttons button.quit:hover{
+    background:#007bff;
+    color:#fff;
+}
+.info-box .buttons button.cont{
+    background-color:#007bff;
+    color:#fff;
+}
+.info-box .buttons button.cont:hover{
+    background:#258eff;
+}
+.quiz-box.activeQuiz{
+    opacity:1;
+    z-index:5;
+    pointer-events:auto;
+    transform:translate(-50% , -50%) scale(1);
+}
+.quiz-box{
+    width:350px;
+    border-radius:5px;
+    background:#fff;
+    opacity:0;
+    pointer-events:none;
+    transform:translate(-50% , -50%) scale(1);
+}
+.oops{
+    animation:shake 0.25s 2;
+}
+@keyframes shake{
+    0%{
+    transform:translate(-49% , -50%) scale(1);
+        
+    }
+    50%{
+    transform:translate(-51% , -50%) scale(1);
+        
+    }
+    90%{
+    transform:translate(-49% , -50%) scale(1);
+        
+    }
+   100%{
+   transform:translate(-50% , -50%) scale(1);
+    }
+}
+.quiz-box header{
+    height:60px;
+    position:relative;
+    z-index:99;
+    padding:0 20px;
+    background:#fff;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-radius:5px 5px 0 0;
+    box-shadow:0 3px 5px 1px rgba(0,0,0,0.1);
+}
+.quiz-box header .title{
+    font-size:20px;
+    font-weight:600;
+}
+.quiz-box header .timer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#166fcd;
+    color: white;
+    width:125px;
+    height:40px;
+    border-radius:5px;
+    padding:0 8px;
+    border:1px solid #bad8ff;
+}
+.quiz-box header .timer .text{
+    font-size:14px;
+    font-weight:400;
+    user-select:none;
+}
+.quiz-box header .timer .sec{
+    font-size:15px;
+    height:30px;
+    font-weight:500;
+    color:#fff;
+    background:#343a40;
+    width:40px;
+    border-radius:5px;
+    line-height:30px;
+    text-align:center;
+    user-select:none;
+    border:1px solid #343a40;
+    font-family:'Courier Prime', sans-serif;
+}
+.quiz-box header .timeline{
+    position:absolute;
+    bottom:0;
+    left:0;
+    height:3px;
+    background:#007bff;
+    border-radius:0 5px 5px 0;
+ }
+.quiz-box header .timeline.right{
+    background:#028a0f;
+}
+.quiz-box header .timeline.wrong{
+    background:#900603;
+}
+.quiz-box section{
+    padding:20px 30px 15px 30px;
+    background:#fff;
+}
+.quiz-box section .question{
+    font-size:23px;
+    font-weight:600;
+}
+.quiz-box section .option-list{
+    padding:15px 0;
+    display:block;
+    transition:all 0.3s ease;
+}
+ section .option-list .option{
+    border:1px solid #84c5fe;
+    background:aliceblue;
+    border-radius:5px;
+    padding:8px 15px;
+    margin-bottom:10px;
+    font-size:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    transition:all 0.3s ease;
+}
+ /*section .option-list .option:hover{
+    background:transparent;
+    color:#004085;
+    border:1px solid #b8daff;
+}*/
+ .option-list .option:last-child{
+    margin-bottom:0px;
+}
+ .option-list .option .icon{
+    height:18px;
+    width:18px;
+    border-radius:50%;
+    text-align:center;
+    border:2px solid transparent;
+    line-height:16px;
+    font-size:10px;
+    pointer-events:none;
+}
+ .option-list .option .icon.tick{
+     color:#23903c;
+     border-color:#23903c;
+     background:#d4edda;
+ }
+.option-list .option .icon.wrong{
+    color:#a42834;
+    border-color:#a42834;
+    background:#f8d7da;
+}
+.option-list .option.correct{
+    color:#155724;
+    background:#d4edda;
+    border-color:#c3e6cb;
+}
+.option-list .option.incorrect{
+    color:#721c24;
+    background:#f8d7da;
+    border-color:#f5c6cb;
+}
+.option-list .option.disabled{
+    pointer-events:none;
+}
+.quiz-box footer{
+    height:60px;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 20px;
+    border-top :1px solid lightgrey;
+}
+.quiz-box footer .total-questions span{
+    display:flex;
+    user-select:none;
+}
+footer .total-questions span p{
+    font-weight:600;
+    font-size:17px;
+    padding:0 5px;
+}
+footer .total-questions span p:first-child{
+    padding-left:0px;
+}
+footer .next{
+display:none;
+    font-size:16px;
+    padding:0px 13px;
+    height:35px;
+    font-size:17px;
+    font-weight:400;
+    border:1px solid #258eff;
+    border-radius:5px;
+    background:#258eff;
+    color:#fff;
+    outline:none;
+    cursor:pointer;
+    transition:all 0.25s ease;
+    font-family:'Varela Round', sans-serif;
+}
+footer .next:hover{
+    background:#0263ca;
+}
+.result-box.activeResult{
+    opacity:1;
+    z-index:5;
+    pointer-events:auto;
+    transform:translate(-50% , -50%) scale(1);
+}
+.result-box{
+    background:#fff;
+    padding:10px 5px;
+    width:350px;
+    text-align:center;
+    border-radius:5px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    opacity:0;
+    pointer-events:none;
+    transform:translate(-50% , -50%) scale(0.9);
+}
+.result-box .icon{
+    font-size:100px;
+    color:#ffd700;
+    margin-bottom:10px;
+}
+.result-box .icon img{
+    width:100px;
+}
+.result-box .complete-text{
+    font-size:18px;
+    font-weight:500;
+}
+.result-box .score-text span{
+    display:flex;
+    font-size:16px;
+    font-weight:500;
+    margin:10px 0;
+}
+.score-text span p{
+    font-weight:600;
+    padding:0 3px;
+}
+.result-box .buttons{
+    display:flex;
+    margin:15px 0;
+}
+.result-box .buttons button{
+    margin:0 10px;
+    border:1px solid transparent ;
+    font-size:16px;
+    font-weight:500;
+    height:40px;
+    width:100px;
+    color:#fff;
+    border-radius:5px;
+    transition:all 0.25s ease;
+    font-family:'Varela Round', sans-serif;
+}
+.result-box .buttons button.exit{
+    background:#fff;
+    border:1px solid #258eff;
+    color:#258eff;
+}
+.result-box .buttons button.exit:hover{
+    background:#258eff;
+    color:#fff;
+}
+.result-box .buttons button.restart{
+    background-color:#007bff;
+    color:#fff;
+}
+.result-box .buttons button.restart:hover{
+    background:#258eff;
+}
+.fa-asterisk{
+    font-size:10px;
+    color:red;
+}
+.fa-crown{
+    color:#ffb500;
+}
+
+
+
+    </style>
+</head>
+<body>
+        <div class = "start"><button>Start Quiz</button></div>
+        
+        <div class = "info-box">
+        
+            <div class = "info-title">Rules of this quiz</div>
+              <div class = "info-list">
+                <div class = "info"><i class = "fas fa-asterisk"></i>  You only have <span>10 seconds</span> for each question.</div>
+                <div class = "info"><i class = "fas fa-asterisk"></i>  You have to select an option before you can go to the next question.</div>
+                <div class = "info"><i class = "fas fa-asterisk"></i>  There's no going back after selecting an option.</div>
+                <div class = "info"><i class = "fas fa-asterisk"></i>  You cannot select an option once the timer goes off.</div>
+                <div class = "info"><i class = "fas fa-asterisk"></i>  You cannot exit the quiz while playing.</div>
+                <div class = "buttons">
+                    <button class = "quit">Exit Quiz</button>
+                    <button class = "cont">Continue</button>
+                </div>
+            </div>
+            
+        </div>
+        
+        
+        <div class = "quiz-box">
+            <header>
+                <div class = "title">Quiz App</div>
+                  <div class = "timer">
+                    <div class = "text">Time left </div>
+                    <div class = "sec">10</div>
+                 </div>
+              <div class = "timeline"></div>
+           </header>
+                
+                <!-- question section -->
+                <section>
+                <div class = "question">
+             <!-- question goes in here -->
+                </div>
+                <div class = "option-list">
+                   <div class = "option">
+                     <!--   options goes in here -->
+                    </div> 
+                    </div>
+                    </section>
+                    
+                    
+       <!-- Quiz footer -->             
+        <footer>
+            <div class = "total-questions">
+       <!-- question count goes in here -->
+            </div>
+            <button class = "next">Next</button>
+        </footer>   
+        </div>
+        
+        <!-- Result section-->
+         <div class = "result-box">
+            <div class = "icon">
+            <!--    <i class = "fa fa-crown"></i>--><img src="https://www.dropbox.com/s/2b81pov6c4nuev3/crown.png?dl=1">
+            </div>
+         <div class = "complete-text">You have completed the quiz !</div>
+         <div class = "score-text"> 
+         <!--   score text goes in here -->
+         </div>
+         <div class = "buttons">
+                <button class = "restart">Replay</button>
+                <button class = "exit">Exit</button>
+         </div> 
+         </div>
+       
+      <!--JavaScript-->
+      <script>     
+      
+
+ 
+   //Questions array
+   let questions = [
+    {
+         number:1,
+         question: "What does HTML stand for ?",
+         answer : "Hypertext Markup Language",
+         options : [
+                          "Hypertensive Money Loan",
+                          "Hypertext Manual Log",
+                          "Hypertext Markup Language",
+                          "Hypertech Math Link"
+                        ]
+    
+    },
+    {
+         number:2,
+         question: "What does XML stand for ?",
+         answer : "eXtensible Markup Language",
+         options : [
+                          "eXtended Markup Language",
+                          "eXtensible Markup Language",
+                          "eXtension Math Link",
+                          "eXpensive Money Loan"  
+                          ]
+    
+    },
+   {
+         number:3,
+         question: "What does URL stand for ?",
+         answer : "Uniform Resource Locator",
+         options : [ 
+                          "Universal Resource Language",
+                          "Uniform Resource Locator",
+                          "Universal Resource Locator",
+                          "University Resource Link "
+                          ]
+    
+    },
+    {
+         number:4,
+         question: "What does HTTP stand for ?",
+         answer : "Hypertext Transfer Protocol",
+         options : [
+                          "Hypertext Transmitter Protocol",
+                          "Hypertest Transfer Protocol",
+                          "Hypertech Transit Protocol",
+                          "Hypertext Transfer Protocol"
+                          ]
+    }, 
+    {
+         number:5,
+         question: "What does SEO stand for ?",
+         answer : "Search Engine Optimization",
+         options : [ 
+                          "Search Engine Orientation",
+                          "Script Engine Optimization",
+                          "Script Entension Order",
+                          "Search Engine Optimization"
+                       ]
+    },
+    {
+         number:6,
+         question: "What does API stand for ?",
+         answer : "Application Programming Interface",
+         options : [
+                          "Application Programming Interface",
+                          "Appliances Programming Interface",
+                          "Application Programming Instruction",
+                          "Appliances Programming Instruction"
+                       ]
+    },
+    {
+         number:7,
+         question: "What does CSS stand for ?",
+         answer : "Cascading Style Sheet",
+         options : [
+                          "Colorful Style Sheet",
+                          "Cascading Sheet Style",
+                          "Cascading Style Sheet",
+                          "Creative Style Sheet"
+                       ]
+    },
+     {
+         number:8,
+         question: "What does DOM stand for ?",
+         answer : "Document Object Model",
+         options : [
+                         "Document Object Model",
+                         "Docstring Object Model",
+                         "Doctype Object Model",
+                         "Document Object Module"
+                       ]
+    },
+    {
+         number:9,
+         question: "What does CMS stand for ?",
+         answer : "Content Management System",
+         options : [
+                         "Content Managent System",
+                         "Content Manager System",
+                         "Content Managing System",
+                         "Content Management System"
+                       ]
+    },
+    {
+         number:10,
+         question: "Which of the following JavaScript cannot do?",
+         answer : "All of the Above",
+         options : [
+                         "JavaScript can react to events",
+                         "JavaScript can manipulate HTML elements",
+                         "JavaScript can be use to validate data",
+                         "All of the Above"
+                       ]
+    }
+     ];    
+
+
+
+      //getting the references
+      const  startBtn = document.querySelector(".start")
+      const infoBox = document.querySelector(".info-box")
+      const exitBtn = infoBox.querySelector(".buttons .quit")
+      const continueBtn = infoBox.querySelector(".buttons .cont")         
+      const quizBox = document.querySelector(".quiz-box")
+      const nextBtn = quizBox.querySelector(".next");            
+      const optionList = quizBox.querySelector(".option-list");    
+      const resultBox = document.querySelector(".result-box" )
+      const timeCount = quizBox.querySelector(".timer .sec")
+      const timeLine = quizBox.querySelector("header .timeline")
+      const timeOut = quizBox.querySelector(".timer .text")
+      const body = document.getElementsByTagName("body")[0];
+ //
+ //
+ //           
+             //start button click event
+             startBtn.onclick = () => {
+              infoBox.classList.add("activeInfo")//shows info box
+              }
+//          
+             //exit button click event
+             exitBtn.onclick = () => {
+              infoBox.classList.remove("activeInfo")//removes info box
+              }
+//          
+            //continue button click event
+             continueBtn.onclick = () => {
+              infoBox.classList.remove("activeInfo")//removes info box
+              quizBox.classList.add("activeQuiz");
+              showQuestions(0);
+              queCount(1);
+              startTimer(11);//so that the time starts from 10
+              startTimeLine(0);
+              alert("ARE YOU READY??")
+              alert("Goodluck!!!all the best");
+              }
+//            
+//           
+//         
+            //defining objects
+            let que_count = 0;
+            let que_numb = 1;
+            let counter;
+            let counterLine;
+            let timeValue = 10;
+            let widthValue = 0;
+            let userScore = 0;
+            
+            let tickIcon = '<div class = "icon tick"><i class = "fas fa-check"></i></div>';
+            let crossIcon = '<div class = "icon wrong"><i class = "fas fa-times"></i></div>';
+//
+//      
+// 
+                //next button click event
+                nextBtn.onclick = () => {
+                if(que_count < questions.length - 1){
+                    que_count++;
+                    que_numb++;
+                    showQuestions(que_count);
+                    queCount(que_numb);
+                    clearInterval(counter);
+                    clearInterval(counterLine);
+                    startTimer(timeValue);
+                    startTimeLine(widthValue);
+                    nextBtn.style.display = "none";
+                    body.classList.remove("right");
+                    body.classList.remove("wrong");
+                    timeLine.classList.remove("right");
+                    timeLine.classList.remove("wrong");
+                    
+                    }
+          else{
+             clearInterval(counter);
+             clearInterval(counterLine);
+             showResultBox();
+             quizBox.classList.remove("activeQuiz")//hides quix box
+             resultBox.classList.add("activeResult")//shows resultBox
+             timeOut.textContent = "Time left"
+             
+             }
+             };
+//
+//
+//   
+  //replay button click event
+  const replayBtn = resultBox.querySelector(".buttons .restart")  
+  replayBtn.onclick = () => { 
+  alert("Get ready")
+    quizBox.classList.add("activeQuiz"); //show quiz box
+    resultBox.classList.remove("activeResult"); //hide result box
+    timeValue = 10;    
+    que_count = 0
+    que_numb = 1;
+    userScore = 0;
+    widthValue = 0;
+    showQuestions(que_count); 
+    queCount(que_numb); 
+    clearInterval(counter); 
+    clearInterval(counterLine); 
+    startTimer(timeValue); 
+    startTimeLine(widthValue); 
+    timeOut.textContent = "Time left"; 
+    nextBtn.classList.remove("show"); //hide the next button  
+    timeLine.classList.remove("right")
+    timeLine.classList.remove("wrong") 
+    quizBox.classList.remove("oops")
+            }; 
+//        
+//
+//                        
+ //quit button click event
+ const quitBtn = resultBox.querySelector(".buttons .exit")
+ quitBtn.onclick = () => {
+ window.location.reload( );
+            }
+//
+//
+//                   
+            //display questions
+            function showQuestions(index){
+               const queText = document.querySelector(".question");
+             
+               let queTag = "<span>" +
+               questions[index].number + 
+               ". " +
+               questions[index].question + 
+               "</span>"
+                
+                 let optionsTag =
+                 '<div class = "option">' +
+                 questions[index].options[0] + 
+                 '<span></span></div>' +
+                 '<div class = "option">' +
+                 questions[index].options[1] +
+                 '<span></span></div>' +
+                 '<div class = "option">' +
+                 questions[index].options[2] + 
+                 '<span></span></div>' +
+                 '<div class = "option">' +
+                 questions[index].options[3] +
+                 '<span></span></div>';
+                     
+                 queText.innerHTML = queTag;
+                 optionList.innerHTML = optionsTag;
+        
+             for (let i of questions) {
+             //to randomly sort options
+             i.options.sort(() => Math.random() - 0.5);
+             }
+             const option = optionList.querySelectorAll(".option")
+             for(let x = 0; x < option.length ; x++){
+             option[x].setAttribute("onclick", "optionSelected(this)")
+             }
+             };
+//                     
+//
+//          
+             //for timer to start counting
+             function startTimer(time){
+               counter = setInterval(timer, 1000)
+             function timer(){
+               timeCount.textContent = time;
+               time--;
+               timeOut.textContent = "Time left" 
+              if(time < 9){
+               let addZero = timeCount.textContent
+               timeCount.textContent = "0" + addZero;
+              }
+              if(time < 0){
+                clearInterval(counter)
+                timeCount.textContent = "00";
+                timeOut.textContent = "Time Up" 
+
+         let correctAns = questions[que_count].answer;
+         let allOptions = optionList.children.length;
+         //to automatically select correct option if answer is wrong
+for(let x = 0; x < allOptions; x++){
+if (optionList.children[x].textContent == correctAns){
+optionList.children[x].setAttribute("class", "option correct");             optionList.children[x].insertAdjacentHTML("beforeend",tickIcon);
+          }
+          }
+          //when any option is selected ,all options are disabled 
+         for(let x = 0; x < allOptions; x++){
+            optionList.children[x].classList.add("disabled");
+            }   
+nextBtn.style.display = "block";//shows next-button when option is clicked
+            };   
+            };
+            };   
+//
+//
+//
+           //for timeline to start moving
+           function startTimeLine(time){
+             counterLine = setInterval(timer, 30.5)
+           function timer(){
+             time += 1;  
+             timeLine.style.width = time + "px"
+           if(time > 350){
+             clearInterval(counterLine)
+           };
+           };
+           };      
+//
+//
+//  
+          //shows result box
+          function showResultBox(){
+            infoBox.classList.remove("activeQuiz")//hide info box
+            quizBox.classList.remove("activeQuiz")//hide quix box
+            resultBox.classList.add("activeResult")//shows resultBox
+            body.classList.remove("right")
+            body.classList.remove("wrong");
+          const scoreText = resultBox.querySelector(".score-text")
+          if(userScore == questions.length){
+               let scoreTag = '<span>🥳👌Perfect!! you got<p>'
+               +  userScore +
+               '</p>out of<p>' 
+               + questions.length +
+               '</p>questions</span>'
+               scoreText.innerHTML = scoreTag;
+            }
+            else  if(userScore > 6 ){
+               let scoreTag = '<span>💫Congrats! you got<p>'
+               +  userScore +
+               '</p>out of<p>' 
+               + questions.length +
+               '</p>questions</span>'
+               scoreText.innerHTML = scoreTag;
+            }
+            else if(userScore > 3){
+               let scoreTag = '<span>👍Nice, you got<p>'
+               +  userScore +
+               '</p>out of<p>' 
+               + questions.length +
+               '</p>questions</span>'
+               scoreText.innerHTML = scoreTag;
+            }
+            else{
+               let scoreTag = '<span>😟Sadly, you only got<p>'
+               +  userScore +
+               '</p>out of<p>' 
+               + questions.length +
+               '</p>questions</span>'
+               scoreText.innerHTML = scoreTag;
+             }
+             };
+//
+//
+//           
+             //count of questions 
+             function queCount(index){ 
+             const bottomQueCount = quizBox.querySelector(".total-questions");
+             
+                let totalQuestionsCount =
+                '<span><p>' +
+                index +
+                '</p>of<p>'  +
+                questions.length +
+                '</p>Questions</span>';
+             
+                bottomQueCount.innerHTML = totalQuestionsCount      
+             };
+//        
+//    
+//               
+              //selecting an option
+             function optionSelected(answer) {
+                clearInterval(counter);//stops time count
+                clearInterval(counterLine)//stops timeline movement
+                let userAns = answer.textContent;
+                let correctAns = questions[que_count].answer;
+                let allOptions = optionList.children.length;
+                if (userAns == correctAns){
+                userScore += 1
+                answer.classList.add("correct")
+                //to show that question is correct
+                answer.insertAdjacentHTML("beforeend", tickIcon)
+                body.classList.add("right")
+                timeLine.classList.add("right")
+                }
+                
+                else{
+                var myQuizBox = false;
+                if (myQuizBox) clearTimeout(myquizBox);
+                myQuizBox = setTimeout(function() {quizBox.style.animation = '';}, 500);//so that the animation can continue
+                answer.classList.add("incorrect");
+                //to show that question is wrong
+                answer.insertAdjacentHTML("beforeend", crossIcon);
+                quizBox.style.animation = "shake 0.25s 2";
+                body.classList.add("wrong");   
+                timeLine.classList.add("wrong")      
+                window.navigator.vibrate([ 500]);//for phone to vibrate 
+   //to automatically select correct option if answer is wrong
+   for(let x = 0; x < allOptions; x++){
+   if (optionList.children[x].textContent == correctAns){   
+   optionList.children[x].setAttribute("class", "option correct");
+   optionList.children[x].insertAdjacentHTML("beforeend",tickIcon);
+   }
+   }
+   };               
+//when any option is selected ,all options are disabled 
+for(let x = 0; x < allOptions; x++){
+optionList.children[x].classList.add("disabled");
+};   
+nextBtn.style.display = "block";//shows next button when option is clicked
+             };   
+//             
+// 
+//           
+        </script>
+    </body>
+
+
+
+</html>
